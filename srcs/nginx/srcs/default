@@ -1,0 +1,23 @@
+server {
+    listen 80;
+    return 301 https://$host$request_uri;
+}
+server {
+    listen 443 ssl;
+	ssl_certificate /etc/ssl/crt.crt;
+    ssl_certificate_key /etc/ssl/key.key;
+    location / {
+        try_files $uri $uri/ =404;
+    }
+    location /wordpress {
+        autoindex on;
+        return 307 https://$host:5050;
+    }
+    location /phpmyadmin/ {
+        rewrite ^/phpmyadmin(/.*)$ $1 break;
+        proxy_pass https://$host:5000;
+   }
+   location /index.php {
+        return 301 https://$host/phpmyadmin/;
+   }
+}
